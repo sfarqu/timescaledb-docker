@@ -4,7 +4,7 @@ ARG PREV_EXTRA
 ############################
 # Build tools binaries in separate image
 ############################
-ARG GO_VERSION=1.14.0
+ARG GO_VERSION=1.21.6
 FROM golang:${GO_VERSION}-alpine AS tools
 
 ENV TOOLS_VERSION 0.8.1
@@ -82,6 +82,5 @@ RUN set -ex \
     \
     && if [ "${OSS_ONLY}" != "" ]; then rm -f $(pg_config --pkglibdir)/timescaledb-tsl-*.so; fi \
     && apk del .fetch-deps .build-deps \
-    && apk add --no-cache openssl1.1-compat \
     && rm -rf /build \
     && sed -r -i "s/[#]*\s*(shared_preload_libraries)\s*=\s*'(.*)'/\1 = 'timescaledb,\2'/;s/,'/'/" /usr/local/share/postgresql/postgresql.conf.sample
