@@ -4,7 +4,7 @@ ARG PREV_EXTRA
 ############################
 # Build tools binaries in separate image
 ############################
-ARG GO_VERSION=1.21.6
+ARG GO_VERSION=1.22
 FROM golang:${GO_VERSION}-alpine AS tools
 
 ENV TOOLS_VERSION 0.8.1
@@ -21,7 +21,8 @@ RUN apk update && apk add --no-cache git \
     && go build -o /go/bin/timescaledb-tune \
     # Build timescaledb-parallel-copy
     && cd ${GOPATH}/src/github.com/timescale/timescaledb-parallel-copy/cmd/timescaledb-parallel-copy \
-    && git fetch && git checkout --quiet $(git describe --abbrev=0) \
+    && git fetch \
+    && git checkout main \
     && go get -d -v \
     && go build -o /go/bin/timescaledb-parallel-copy
 
@@ -55,6 +56,7 @@ COPY --from=oldversions /usr/local/lib/postgresql/timescaledb-*.so /usr/local/li
 COPY --from=oldversions /usr/local/share/postgresql/extension/timescaledb--*.sql /usr/local/share/postgresql/extension/
 
 RUN set -ex \
+    && apk update && apk upgrade --no-cache \
     && apk add --no-cache --virtual .fetch-deps \
                 ca-certificates \
                 git \
